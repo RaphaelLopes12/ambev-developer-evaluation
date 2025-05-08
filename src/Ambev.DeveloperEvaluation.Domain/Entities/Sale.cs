@@ -53,7 +53,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         /// <summary>
         /// Total amount of the sale (sum of item totals).
         /// </summary>
-        public decimal TotalAmount => Items.Sum(i => i.Total);
+        public decimal TotalAmount => Items.Where(i => !i.IsCancelled).Sum(i => i.Total);
 
         /// <summary>
         /// Current status of the sale.
@@ -75,11 +75,14 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         /// </summary>
         public Sale() { }
 
+        /// <summary>
+        /// Creates a new sale with the specified details.
+        /// </summary>
         public Sale(string number, DateTime date, Guid customerId, string customerName, Guid branchId, string branchName)
         {
             Id = Guid.NewGuid();
             Number = number;
-            Date = date;
+            Date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
             CustomerId = customerId;
             CustomerName = customerName;
             BranchId = branchId;
@@ -93,8 +96,67 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         /// </summary>
         public void AddItem(Guid productId, string productName, int quantity, decimal unitPrice)
         {
+            ValidateItemQuantity(quantity);
+
+            var existingItem = Items.FirstOrDefault(i => i.ProductId == productId && !i.IsCancelled);
+            if (existingItem != null)
+            {
+                throw new ArgumentException($"Product {productId} already exists in this sale. Please update the existing item.");
+            }
+
             var item = new SaleItem(productId, productName, quantity, unitPrice);
             Items.Add(item);
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Updates an existing item in the sale.
+        /// </summary>
+        public void UpdateItem(Guid productId, int quantity)
+        {
+            ValidateItemQuantity(quantity);
+
+            var item = Items.FirstOrDefault(i => i.ProductId == productId && !i.IsCancelled);
+            if (item == null)
+            {
+                throw new ArgumentException($"Item with product ID {productId} not found in this sale or is cancelled.");
+            }
+
+            // Recalculate discount based on new quantity
+            decimal discount = CalculateDiscount(quantity, item.UnitPrice);
+
+            // Update item
+            item.UpdateQuantity(quantity, discount);
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Removes an item from the sale.
+        /// </summary>
+        public void RemoveItem(Guid productId)
+        {
+            var item = Items.FirstOrDefault(i => i.ProductId == productId);
+            if (item == null)
+            {
+                throw new ArgumentException($"Item with product ID {productId} not found in this sale");
+            }
+
+            Items.Remove(item);
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Cancels a specific item in the sale.
+        /// </summary>
+        public void CancelItem(Guid productId)
+        {
+            var item = Items.FirstOrDefault(i => i.ProductId == productId && !i.IsCancelled);
+            if (item == null)
+            {
+                throw new ArgumentException($"Item with product ID {productId} not found in this sale or is already cancelled.");
+            }
+
+            item.Cancel();
             UpdatedAt = DateTime.UtcNow;
         }
 
@@ -103,7 +165,31 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         /// </summary>
         public void Cancel()
         {
+            if (Status == SaleStatus.Cancelled)
+            {
+                throw new InvalidOperationException("This sale is already cancelled.");
+            }
+
             Status = SaleStatus.Cancelled;
+
+            foreach (var item in Items.Where(i => !i.IsCancelled))
+            {
+                item.Cancel();
+            }
+
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Updates the details of the sale.
+        /// </summary>
+        public void UpdateDetails(DateTime date, Guid customerId, string customerName, Guid branchId, string branchName)
+        {
+            Date = date;
+            CustomerId = customerId;
+            CustomerName = customerName;
+            BranchId = branchId;
+            BranchName = branchName;
             UpdatedAt = DateTime.UtcNow;
         }
 
@@ -119,6 +205,35 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
                 IsValid = result.IsValid,
                 Errors = result.Errors.Select(e => (ValidationErrorDetail)e)
             };
+        }
+
+        /// <summary>
+        /// Validates if the item quantity meets business rules.
+        /// </summary>
+        private void ValidateItemQuantity(int quantity)
+        {
+            if (quantity <= 0)
+                throw new ArgumentException("Quantity must be greater than zero.", nameof(quantity));
+
+            if (quantity > 20)
+                throw new ArgumentException("Cannot sell more than 20 identical items.", nameof(quantity));
+        }
+
+        /// <summary>
+        /// Calculates discount based on business rules.
+        /// </summary>
+        private decimal CalculateDiscount(int quantity, decimal unitPrice)
+        {
+            if (quantity > 20)
+                throw new ArgumentException("Cannot sell more than 20 items of the same product");
+
+            if (quantity >= 10 && quantity <= 20)
+                return quantity * unitPrice * 0.20m; // 20% discount
+
+            if (quantity >= 4)
+                return quantity * unitPrice * 0.10m; // 10% discount
+
+            return 0;
         }
     }
 }

@@ -24,6 +24,23 @@ namespace Ambev.DeveloperEvaluation.Domain.Repositories
         Task<Sale?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Retrieves a paginated list of sales.
+        /// </summary>
+        /// <param name="page">Page number (1-based).</param>
+        /// <param name="pageSize">Number of items per page.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>A list of sales for the requested page.</returns>
+        Task<(List<Sale> Sales, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Updates an existing sale in the repository.
+        /// </summary>
+        /// <param name="sale">The sale to update.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>The updated sale.</returns>
+        Task<Sale> UpdateAsync(Sale sale, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Deletes a sale from the repository.
         /// </summary>
         /// <param name="id">The unique identifier of the sale to delete.</param>

@@ -34,6 +34,10 @@ namespace Ambev.DeveloperEvaluation.ORM.Mapping
                 .HasColumnType("decimal(18,2)")
                 .IsRequired();
 
+            builder.Property(i => i.IsCancelled)
+                .IsRequired()
+                .HasDefaultValue(false);
+
             builder.Ignore(i => i.Total);
 
             builder.Property<Guid>("SaleId");

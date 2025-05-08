@@ -37,6 +37,58 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories
         }
 
         /// <inheritdoc />
+        public async Task<(List<Sale> Sales, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            var query = _context.Sales.AsQueryable();
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var sales = await query
+                .Include(s => s.Items)
+                .OrderByDescending(s => s.Date)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return (sales, totalCount);
+        }
+
+        /// <inheritdoc />
+        public async Task<Sale> UpdateAsync(Sale sale, CancellationToken cancellationToken = default)
+        {
+            _context.Entry(sale).State = EntityState.Modified;
+
+            // Handle collection updates
+            var existingItems = await _context.Set<SaleItem>()
+                .Where(i => EF.Property<Guid>(i, "SaleId") == sale.Id)
+                .ToListAsync(cancellationToken);
+
+            foreach (var existingItem in existingItems)
+            {
+                if (!sale.Items.Any(i => i.Id == existingItem.Id))
+                {
+                    _context.Set<SaleItem>().Remove(existingItem);
+                }
+            }
+
+            foreach (var item in sale.Items)
+            {
+                var existingItem = existingItems.FirstOrDefault(i => i.Id == item.Id);
+                if (existingItem == null)
+                {
+                    _context.Set<SaleItem>().Add(item);
+                }
+                else
+                {
+                    _context.Entry(existingItem).CurrentValues.SetValues(item);
+                }
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+            return sale;
+        }
+
+        /// <inheritdoc />
         public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var sale = await GetByIdAsync(id, cancellationToken);

@@ -1,21 +1,17 @@
 ﻿using FluentValidation;
 
-namespace Ambev.DeveloperEvaluation.WebApi.Features.Sales.CreateSale;
+namespace Ambev.DeveloperEvaluation.WebApi.Features.Sales.UpdateSale;
 
 /// <summary>
-/// Validator for CreateSaleRequest defining rules for sale creation.
+/// Validator for UpdateSaleRequest defining rules for sale updates.
 /// </summary>
-public class CreateSaleRequestValidator : AbstractValidator<CreateSaleRequest>
+public class UpdateSaleRequestValidator : AbstractValidator<UpdateSaleRequest>
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="CreateSaleRequestValidator"/> class.
+    /// Initializes a new instance of the <see cref="UpdateSaleRequestValidator"/> class.
     /// </summary>
-    public CreateSaleRequestValidator()
+    public UpdateSaleRequestValidator()
     {
-        RuleFor(x => x.Number)
-            .NotEmpty().WithMessage("Sale number is required.")
-            .MaximumLength(50).WithMessage("Sale number must be at most 50 characters.");
-
         RuleFor(x => x.Date)
             .NotEmpty().WithMessage("Sale date is required.");
 
@@ -37,6 +33,6 @@ public class CreateSaleRequestValidator : AbstractValidator<CreateSaleRequest>
             .NotEmpty().WithMessage("At least one sale item is required.");
 
         RuleForEach(x => x.Items)
-            .SetValidator(new CreateSaleItemRequestValidator());
+            .SetValidator(new UpdateSaleItemRequestValidator());
     }
 }
