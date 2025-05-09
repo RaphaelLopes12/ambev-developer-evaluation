@@ -1,18 +1,21 @@
-﻿using Ambev.DeveloperEvaluation.Common.Security;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 namespace Ambev.DeveloperEvaluation.IoC.ModuleInitializers
 {
+    /// <summary>
+    /// Initializes WebAPI-specific dependencies
+    /// </summary>
     public class WebApiModuleInitializer : IModuleInitializer
     {
+        /// <summary>
+        /// Initializes WebAPI dependencies
+        /// </summary>
+        /// <param name="builder">Web application builder</param>
         public void Initialize(WebApplicationBuilder builder)
         {
-
             builder.Services.AddControllers();
+
             builder.Services.AddHealthChecks();
         }
     }
