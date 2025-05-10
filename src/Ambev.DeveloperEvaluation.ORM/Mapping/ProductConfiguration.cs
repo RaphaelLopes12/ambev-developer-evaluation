@@ -51,16 +51,5 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.CreatedAt)
             .IsRequired()
             .HasDefaultValueSql("NOW()");
-
-        builder.Property(p => p.Title).HasField("_title");
-        builder.Property(p => p.Price).HasField("_price");
-        builder.Property(p => p.Description).HasField("_description");
-        builder.Property(p => p.Category).HasField("_category");
-        builder.Property(p => p.Image).HasField("_image");
-        builder.Property(p => p.StockQuantity).HasField("_stockQuantity");
-        builder.Property(p => p.RatingRate).HasField("_ratingRate");
-        builder.Property(p => p.RatingCount).HasField("_ratingCount");
-        builder.Property(p => p.CreatedAt).HasField("_createdAt");
-        builder.Property(p => p.UpdatedAt).HasField("_updatedAt");
     }
 }

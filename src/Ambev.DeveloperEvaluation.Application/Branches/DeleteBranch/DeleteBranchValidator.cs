@@ -13,6 +13,6 @@ public class DeleteBranchValidator : AbstractValidator<DeleteBranchCommand>
     public DeleteBranchValidator()
     {
         RuleFor(b => b.Id)
-            .GreaterThan(0).WithMessage("Valid branch ID is required.");
+            .NotEmpty().WithMessage("Valid branch ID is required.");
     }
 }

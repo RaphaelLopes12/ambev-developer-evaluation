@@ -11,5 +11,5 @@ public class GetProductRequest
     /// ID of the product to get
     /// </summary>
     [Required]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 }

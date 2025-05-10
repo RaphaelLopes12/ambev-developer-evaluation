@@ -11,5 +11,5 @@ public class DeleteBranchRequest
     /// ID of the branch to delete
     /// </summary>
     [Required]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 }

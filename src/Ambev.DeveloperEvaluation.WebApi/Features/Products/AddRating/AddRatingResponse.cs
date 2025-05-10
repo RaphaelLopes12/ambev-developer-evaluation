@@ -18,7 +18,7 @@ public class AddRatingResponse
     /// <summary>
     /// ID of the product
     /// </summary>
-    public int ProductId { get; set; }
+    public Guid ProductId { get; set; }
 
     /// <summary>
     /// New average rating

@@ -13,7 +13,7 @@ public class UpdateStockValidator : AbstractValidator<UpdateStockCommand>
     public UpdateStockValidator()
     {
         RuleFor(p => p.Id)
-            .GreaterThan(0).WithMessage("Valid product ID is required.");
+            .NotEmpty().WithMessage("Valid product ID is required.");
 
         RuleFor(p => p.Quantity)
             .GreaterThanOrEqualTo(0).WithMessage("Stock quantity cannot be negative.");

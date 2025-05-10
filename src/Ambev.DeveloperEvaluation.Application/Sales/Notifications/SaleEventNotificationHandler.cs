@@ -10,6 +10,7 @@ public class SaleEventNotificationHandler :
     INotificationHandler<SaleCreatedNotification>,
     INotificationHandler<SaleModifiedNotification>,
     INotificationHandler<SaleCancelledNotification>,
+    INotificationHandler<SaleDeletedNotification>,
     INotificationHandler<ItemCancelledNotification>
 {
     private readonly ILogger<SaleEventNotificationHandler> _logger;
@@ -67,6 +68,22 @@ public class SaleEventNotificationHandler :
         // Here you would implement the actual event publishing to a message broker
         // For example:
         // await _messageBroker.PublishAsync("sale.cancelled", notification);
+
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Handles sale deleted notifications.
+    /// </summary>
+    /// <param name="notification">The notification</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    public Task Handle(SaleDeletedNotification notification, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Sale deleted: {SaleId}", notification.SaleId);
+
+        // Here you would implement the actual event publishing to a message broker
+        // For example:
+        // await _messageBroker.PublishAsync("sale.deleted", notification);
 
         return Task.CompletedTask;
     }

@@ -39,5 +39,10 @@
         /// Total price after discount.
         /// </summary>
         public decimal Total { get; set; }
+
+        /// <summary>
+        /// Indicates if the item has been cancelled.
+        /// </summary>
+        public bool IsCancelled { get; set; }
     }
 }

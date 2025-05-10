@@ -36,4 +36,9 @@ public class CreateProductCommand : IRequest<CreateProductResult>
     /// Initial stock quantity
     /// </summary>
     public int StockQuantity { get; set; }
+
+    /// <summary>
+    /// Initial rating information (optional)
+    /// </summary>
+    public RatingDto Rating { get; set; }
 }

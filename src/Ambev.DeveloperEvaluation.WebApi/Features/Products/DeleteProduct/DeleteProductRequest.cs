@@ -11,5 +11,5 @@ public class DeleteProductRequest
     /// ID of the product to delete
     /// </summary>
     [Required]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 }

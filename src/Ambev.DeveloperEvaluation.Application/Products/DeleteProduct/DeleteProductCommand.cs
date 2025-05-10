@@ -10,5 +10,5 @@ public class DeleteProductCommand : IRequest<bool>
     /// <summary>
     /// ID of the product to delete
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 }

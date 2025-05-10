@@ -11,7 +11,7 @@ public class SaleItemValidator : AbstractValidator<SaleItem>
     public SaleItemValidator()
     {
         RuleFor(si => si.ProductId)
-            .GreaterThan(0).WithMessage("Product ID must be a positive number.");
+            .NotEmpty().WithMessage("Product ID is required.");
 
         RuleFor(si => si.ProductName)
             .NotEmpty().WithMessage("Product name is required.")

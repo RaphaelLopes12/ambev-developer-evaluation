@@ -11,5 +11,5 @@ public class DeactivateBranchRequest
     /// ID of the branch to deactivate
     /// </summary>
     [Required]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 }

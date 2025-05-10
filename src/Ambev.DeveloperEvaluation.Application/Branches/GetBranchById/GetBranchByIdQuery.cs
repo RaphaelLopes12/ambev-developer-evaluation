@@ -10,5 +10,5 @@ public class GetBranchByIdQuery : IRequest<BranchDetailVm>
     /// <summary>
     /// ID of the branch to get
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 }

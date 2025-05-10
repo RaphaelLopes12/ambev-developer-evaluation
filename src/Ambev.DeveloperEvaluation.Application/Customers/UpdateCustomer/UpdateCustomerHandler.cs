@@ -1,4 +1,6 @@
-﻿using Ambev.DeveloperEvaluation.Domain.Repositories;
+﻿using Ambev.DeveloperEvaluation.Application.Customers.Notifications;
+using Ambev.DeveloperEvaluation.Domain.Exceptions;
+using Ambev.DeveloperEvaluation.Domain.Repositories;
 using AutoMapper;
 using MediatR;
 
@@ -10,14 +12,16 @@ namespace Ambev.DeveloperEvaluation.Application.Customers.UpdateCustomer;
 public class UpdateCustomerHandler : IRequestHandler<UpdateCustomerCommand, UpdateCustomerResult>
 {
     private readonly ICustomerRepository _customerRepository;
+    private readonly IMediator _mediator;
     private readonly IMapper _mapper;
 
     /// <summary>
     /// Initializes a new instance of the UpdateCustomerHandler
     /// </summary>
-    public UpdateCustomerHandler(ICustomerRepository customerRepository, IMapper mapper)
+    public UpdateCustomerHandler(ICustomerRepository customerRepository, IMediator mediator, IMapper mapper)
     {
         _customerRepository = customerRepository;
+        _mediator = mediator;
         _mapper = mapper;
     }
 
@@ -46,6 +50,8 @@ public class UpdateCustomerHandler : IRequestHandler<UpdateCustomerCommand, Upda
         }
 
         await _customerRepository.UpdateAsync(customer);
+
+        await _mediator.Publish(new CustomerUpdatedNotification { Id = request.Id }, cancellationToken);
 
         return new UpdateCustomerResult
         {

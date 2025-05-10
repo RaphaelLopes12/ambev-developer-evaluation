@@ -11,5 +11,5 @@ public class GetBranchRequest
     /// ID of the branch to get
     /// </summary>
     [Required]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 }

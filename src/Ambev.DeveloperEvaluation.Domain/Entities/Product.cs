@@ -11,7 +11,7 @@ public class Product
     /// <summary>
     /// Unique identifier of the product.
     /// </summary>
-    public int Id { get; private set; }
+    public Guid Id { get; private set; }
 
     /// <summary>
     /// Title/name of the product.
@@ -78,6 +78,7 @@ public class Product
     /// </summary>
     public Product(string title, decimal price, string description, string category, string image, int stockQuantity, decimal ratingRate = 0, int ratingCount = 0)
     {
+        Id = Guid.NewGuid();
         Title = title;
         Price = price;
         Description = description;

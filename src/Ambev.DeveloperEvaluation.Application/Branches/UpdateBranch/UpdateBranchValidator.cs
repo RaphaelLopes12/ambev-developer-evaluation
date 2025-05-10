@@ -13,7 +13,7 @@ public class UpdateBranchValidator : AbstractValidator<UpdateBranchCommand>
     public UpdateBranchValidator()
     {
         RuleFor(b => b.Id)
-            .GreaterThan(0).WithMessage("Valid branch ID is required.");
+            .NotEmpty().WithMessage("Valid branch ID is required.");
 
         RuleFor(b => b.Name)
             .NotEmpty().WithMessage("Name is required.")

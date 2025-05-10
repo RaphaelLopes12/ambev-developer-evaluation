@@ -13,6 +13,7 @@ using Ambev.DeveloperEvaluation.WebApi.Features.Sales.CancelSale;
 using Ambev.DeveloperEvaluation.WebApi.Features.Sales.CancelSaleItem;
 using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ambev.DeveloperEvaluation.Application.Sales.DeleteSale;
 
@@ -23,6 +24,7 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Sales;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class SalesController : BaseController
 {
     private readonly IMediator _mediator;
@@ -43,6 +45,7 @@ public class SalesController : BaseController
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponseWithData<CreateSaleResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> CreateSale([FromBody] CreateSaleRequest request, CancellationToken cancellationToken)
     {
         var validationResult = await new CreateSaleRequestValidator().ValidateAsync(request, cancellationToken);
@@ -50,12 +53,15 @@ public class SalesController : BaseController
             return BadRequest(validationResult.Errors);
 
         var command = _mapper.Map<CreateSaleCommand>(request);
+
+        var userEmail = GetCurrentUserEmail();
+
         var result = await _mediator.Send(command, cancellationToken);
 
         return Created(string.Empty, new ApiResponseWithData<CreateSaleResponse>
         {
             Success = true,
-            Message = "Sale created successfully",
+            Message = $"Sale created successfully by {userEmail}",
             Data = _mapper.Map<CreateSaleResponse>(result)
         });
     }
@@ -66,6 +72,7 @@ public class SalesController : BaseController
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ApiResponseWithData<GetSaleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetSale([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetSaleQuery { Id = id }, cancellationToken);
@@ -89,18 +96,16 @@ public class SalesController : BaseController
     /// Gets all sales (paged)
     /// </summary>
     [HttpGet]
+    [Authorize(Policy = "RequireManagerRole")]
     [ProducesResponseType(typeof(ApiResponseWithData<GetSalesResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetSales([FromQuery] GetSalesRequest request, CancellationToken cancellationToken = default)
     {
         var query = _mapper.Map<GetSalesQuery>(request);
         var result = await _mediator.Send(query, cancellationToken);
 
-        return Ok(new ApiResponseWithData<GetSalesResponse>
-        {
-            Success = true,
-            Message = "Sales retrieved successfully",
-            Data = _mapper.Map<GetSalesResponse>(result)
-        });
+        return Ok(_mapper.Map<GetSalesResponse>(result));
     }
 
     /// <summary>
@@ -109,6 +114,7 @@ public class SalesController : BaseController
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ApiResponseWithData<UpdateSaleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> UpdateSale([FromRoute] Guid id, [FromBody] UpdateSaleRequest request, CancellationToken cancellationToken)
     {
         var validationResult = await new UpdateSaleRequestValidator().ValidateAsync(request, cancellationToken);
@@ -117,6 +123,9 @@ public class SalesController : BaseController
 
         var command = _mapper.Map<UpdateSaleCommand>(request);
         command.Id = id;
+
+        var userEmail = GetCurrentUserEmail();
+
         var result = await _mediator.Send(command, cancellationToken);
 
         if (!result.Success)
@@ -138,7 +147,7 @@ public class SalesController : BaseController
         return Ok(new ApiResponseWithData<UpdateSaleResponse>
         {
             Success = true,
-            Message = "Sale updated successfully",
+            Message = $"Sale updated successfully by {userEmail}",
             Data = _mapper.Map<UpdateSaleResponse>(result)
         });
     }
@@ -147,10 +156,15 @@ public class SalesController : BaseController
     /// Cancels a sale
     /// </summary>
     [HttpPatch("{id}/cancel")]
+    [Authorize(Policy = "RequireManagerRole")]
     [ProducesResponseType(typeof(ApiResponseWithData<CancelSaleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> CancelSale([FromRoute] Guid id, CancellationToken cancellationToken)
     {
+        var userEmail = GetCurrentUserEmail();
+
         var result = await _mediator.Send(new CancelSaleCommand { Id = id }, cancellationToken);
 
         if (!result.Success)
@@ -172,7 +186,7 @@ public class SalesController : BaseController
         return Ok(new ApiResponseWithData<CancelSaleResponse>
         {
             Success = true,
-            Message = "Sale cancelled successfully",
+            Message = $"Sale cancelled successfully by {userEmail}",
             Data = _mapper.Map<CancelSaleResponse>(result)
         });
     }
@@ -181,8 +195,11 @@ public class SalesController : BaseController
     /// Cancels an item of a sale
     /// </summary>
     [HttpPatch("{saleId}/items/{productId}/cancel")]
+    [Authorize(Policy = "RequireManagerRole")]
     [ProducesResponseType(typeof(ApiResponseWithData<CancelSaleItemResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> CancelSaleItem([FromRoute] Guid saleId, [FromRoute] Guid productId, CancellationToken cancellationToken)
     {
         var command = new CancelSaleItemCommand
@@ -190,6 +207,8 @@ public class SalesController : BaseController
             SaleId = saleId,
             ProductId = productId
         };
+
+        var userEmail = GetCurrentUserEmail();
 
         var result = await _mediator.Send(command, cancellationToken);
 
@@ -212,7 +231,7 @@ public class SalesController : BaseController
         return Ok(new ApiResponseWithData<CancelSaleItemResponse>
         {
             Success = true,
-            Message = "Sale item cancelled successfully",
+            Message = $"Sale item cancelled successfully by {userEmail}",
             Data = _mapper.Map<CancelSaleItemResponse>(result)
         });
     }
@@ -221,8 +240,11 @@ public class SalesController : BaseController
     /// Deletes a sale
     /// </summary>
     [HttpDelete("{id}")]
+    [Authorize(Policy = "RequireAdminRole")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DeleteSale([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         var success = await _mediator.Send(new DeleteSaleCommand { Id = id }, cancellationToken);
@@ -234,10 +256,12 @@ public class SalesController : BaseController
                 Message = "Sale not found"
             });
 
+        var userEmail = GetCurrentUserEmail();
+
         return Ok(new ApiResponse
         {
             Success = true,
-            Message = "Sale deleted successfully"
+            Message = $"Sale deleted successfully by {userEmail}"
         });
     }
 }

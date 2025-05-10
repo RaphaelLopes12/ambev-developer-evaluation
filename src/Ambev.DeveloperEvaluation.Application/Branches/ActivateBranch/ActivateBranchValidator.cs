@@ -13,6 +13,6 @@ public class ActivateBranchValidator : AbstractValidator<ActivateBranchCommand>
     public ActivateBranchValidator()
     {
         RuleFor(b => b.Id)
-            .GreaterThan(0).WithMessage("Valid branch ID is required.");
+            .NotEmpty().WithMessage("Valid branch ID is required.");
     }
 }

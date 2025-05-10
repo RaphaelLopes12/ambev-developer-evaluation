@@ -58,7 +58,7 @@ public class ProductRepository : IProductRepository
     /// </summary>
     /// <param name="id">Product ID</param>
     /// <returns>Product found or null</returns>
-    public async Task<Product> GetByIdAsync(int id)
+    public async Task<Product> GetByIdAsync(Guid id)
     {
         return await _context.Products.FindAsync(id);
     }
@@ -131,7 +131,7 @@ public class ProductRepository : IProductRepository
     /// <param name="category">Product category</param>
     /// <param name="image">Product image URL</param>
     /// <returns>True if updated successfully</returns>
-    public async Task<bool> UpdateDetailsAsync(int id, string title, decimal price, string description, string category, string image)
+    public async Task<bool> UpdateDetailsAsync(Guid id, string title, decimal price, string description, string category, string image)
     {
         var product = await _context.Products.FindAsync(id);
         if (product == null)
@@ -149,7 +149,7 @@ public class ProductRepository : IProductRepository
     /// <param name="id">Product ID</param>
     /// <param name="quantity">New stock quantity</param>
     /// <returns>True if updated successfully</returns>
-    public async Task<bool> UpdateStockAsync(int id, int quantity)
+    public async Task<bool> UpdateStockAsync(Guid id, int quantity)
     {
         var product = await _context.Products.FindAsync(id);
         if (product == null)
@@ -167,7 +167,7 @@ public class ProductRepository : IProductRepository
     /// <param name="id">Product ID</param>
     /// <param name="rating">Rating value (0-5)</param>
     /// <returns>True if updated successfully</returns>
-    public async Task<bool> AddRatingAsync(int id, decimal rating)
+    public async Task<bool> AddRatingAsync(Guid id, decimal rating)
     {
         var product = await _context.Products.FindAsync(id);
         if (product == null)
@@ -184,7 +184,7 @@ public class ProductRepository : IProductRepository
     /// </summary>
     /// <param name="id">Product ID</param>
     /// <returns>True if deleted successfully</returns>
-    public async Task<bool> RemoveAsync(int id)
+    public async Task<bool> RemoveAsync(Guid id)
     {
         var product = await _context.Products.FindAsync(id);
         if (product == null)

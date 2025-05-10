@@ -10,5 +10,5 @@ public class DeleteBranchCommand : IRequest<bool>
     /// <summary>
     /// ID of the branch to delete
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 }

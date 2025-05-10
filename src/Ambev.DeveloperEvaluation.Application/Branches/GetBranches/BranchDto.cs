@@ -8,7 +8,7 @@ public class BranchDto
     /// <summary>
     /// Branch ID
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Branch name

@@ -26,7 +26,7 @@ public class SaleValidator : AbstractValidator<Sale>
             .MaximumLength(100).WithMessage("Customer name cannot exceed 100 characters.");
 
         RuleFor(s => s.BranchId)
-            .GreaterThan(0).WithMessage("Branch ID must be a positive number.");
+            .NotEmpty().WithMessage("Branch ID is required.");
 
         RuleFor(s => s.BranchName)
             .NotEmpty().WithMessage("Branch name is required.")

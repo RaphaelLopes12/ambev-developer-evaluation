@@ -8,7 +8,7 @@ public class UpdateProductResult
     /// <summary>
     /// ID of the updated product
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Updated title/name of the product

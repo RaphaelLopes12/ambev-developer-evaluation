@@ -16,7 +16,7 @@ public class SaleItem
     /// <summary>
     /// Product ID (external reference).
     /// </summary>
-    public int ProductId { get; private set; }
+    public Guid ProductId { get; private set; }
 
     /// <summary>
     /// Product name (denormalized).
@@ -56,7 +56,7 @@ public class SaleItem
     /// <summary>
     /// Creates a new sale item.
     /// </summary>
-    public SaleItem(int productId, string productName, int quantity, decimal unitPrice)
+    public SaleItem(Guid productId, string productName, int quantity, decimal unitPrice)
     {
         Id = Guid.NewGuid();
         ProductId = productId;

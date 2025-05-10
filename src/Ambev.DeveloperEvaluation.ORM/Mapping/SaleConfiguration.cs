@@ -55,16 +55,6 @@ public class SaleConfiguration : IEntityTypeConfiguration<Sale>
         builder.Property(s => s.UpdatedAt)
             .IsRequired(false);
 
-        builder.Property(s => s.Number).HasField("_number");
-        builder.Property(s => s.Date).HasField("_date");
-        builder.Property(s => s.CustomerId).HasField("_customerId");
-        builder.Property(s => s.CustomerName).HasField("_customerName");
-        builder.Property(s => s.BranchId).HasField("_branchId");
-        builder.Property(s => s.BranchName).HasField("_branchName");
-        builder.Property(s => s.Status).HasField("_status");
-        builder.Property(s => s.CreatedAt).HasField("_createdAt");
-        builder.Property(s => s.UpdatedAt).HasField("_updatedAt");
-
         builder
             .HasMany(s => s.Items)
             .WithOne()

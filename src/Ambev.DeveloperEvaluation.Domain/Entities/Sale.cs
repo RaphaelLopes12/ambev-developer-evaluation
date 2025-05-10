@@ -38,7 +38,7 @@ public class Sale : BaseEntity
     /// <summary>
     /// Branch ID (external reference).
     /// </summary>
-    public int BranchId { get; private set; }
+    public Guid BranchId { get; private set; }
 
     /// <summary>
     /// Branch name (denormalized).
@@ -78,7 +78,7 @@ public class Sale : BaseEntity
     /// <summary>
     /// Creates a new sale with the specified details.
     /// </summary>
-    public Sale(string number, DateTime date, string customerId, string customerName, int branchId, string branchName)
+    public Sale(string number, DateTime date, string customerId, string customerName, Guid branchId, string branchName)
     {
         Id = Guid.NewGuid();
         Number = number;
@@ -94,7 +94,7 @@ public class Sale : BaseEntity
     /// <summary>
     /// Adds a product item to the sale.
     /// </summary>
-    public void AddItem(int productId, string productName, int quantity, decimal unitPrice)
+    public void AddItem(Guid productId, string productName, int quantity, decimal unitPrice)
     {
         ValidateItemQuantity(quantity);
 
@@ -112,7 +112,7 @@ public class Sale : BaseEntity
     /// <summary>
     /// Updates an existing item in the sale.
     /// </summary>
-    public void UpdateItem(int productId, int quantity)
+    public void UpdateItem(Guid productId, int quantity)
     {
         ValidateItemQuantity(quantity);
 
@@ -133,7 +133,7 @@ public class Sale : BaseEntity
     /// <summary>
     /// Removes an item from the sale.
     /// </summary>
-    public void RemoveItem(int productId)
+    public void RemoveItem(Guid productId)
     {
         var item = Items.FirstOrDefault(i => i.ProductId == productId);
         if (item == null)
@@ -148,7 +148,7 @@ public class Sale : BaseEntity
     /// <summary>
     /// Cancels a specific item in the sale.
     /// </summary>
-    public void CancelItem(int productId)
+    public void CancelItem(Guid productId)
     {
         var item = Items.FirstOrDefault(i => i.ProductId == productId && !i.IsCancelled);
         if (item == null)
@@ -183,7 +183,7 @@ public class Sale : BaseEntity
     /// <summary>
     /// Updates the details of the sale.
     /// </summary>
-    public void UpdateDetails(DateTime date, string customerId, string customerName, int branchId, string branchName)
+    public void UpdateDetails(DateTime date, string customerId, string customerName, Guid branchId, string branchName)
     {
         Date = date;
         CustomerId = customerId;

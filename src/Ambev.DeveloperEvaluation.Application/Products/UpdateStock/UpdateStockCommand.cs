@@ -10,7 +10,7 @@ public class UpdateStockCommand : IRequest<bool>
     /// <summary>
     /// ID of the product to update
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// New stock quantity

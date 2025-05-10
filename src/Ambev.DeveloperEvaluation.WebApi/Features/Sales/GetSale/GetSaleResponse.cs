@@ -10,7 +10,7 @@ public class GetSaleResponse
     public Guid Id { get; set; }
     public string Number { get; set; }
     public DateTime Date { get; set; }
-    public Guid CustomerId { get; set; }
+    public string CustomerId { get; set; }
     public string CustomerName { get; set; }
     public Guid BranchId { get; set; }
     public string BranchName { get; set; }

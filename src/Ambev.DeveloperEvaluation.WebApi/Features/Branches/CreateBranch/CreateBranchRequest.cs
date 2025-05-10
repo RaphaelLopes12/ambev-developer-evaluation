@@ -48,5 +48,3 @@ public class CreateBranchRequest
     [EmailAddress]
     public string Email { get; set; }
 }
-
-}

@@ -18,7 +18,7 @@
         /// <summary>
         /// Gets or sets the customer identifier.
         /// </summary>
-        public Guid CustomerId { get; set; }
+        public string CustomerId { get; set; }
 
         /// <summary>
         /// Gets or sets the customer's name (denormalized).

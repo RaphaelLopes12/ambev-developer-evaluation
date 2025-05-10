@@ -18,7 +18,7 @@ public interface IBranchRepository
     /// </summary>
     /// <param name="id">Branch ID</param>
     /// <returns>Branch found or null</returns>
-    Task<Branch> GetByIdAsync(int id);
+    Task<Branch> GetByIdAsync(Guid id);
 
     /// <summary>
     /// Adds a new branch
@@ -39,26 +39,26 @@ public interface IBranchRepository
     /// <param name="phone">Branch phone</param>
     /// <param name="email">Branch email</param>
     /// <returns>True if updated successfully</returns>
-    Task<bool> UpdateDetailsAsync(int id, string name, string address, string city, string state, string zipCode, string phone, string email);
+    Task<bool> UpdateDetailsAsync(Guid id, string name, string address, string city, string state, string zipCode, string phone, string email);
 
     /// <summary>
     /// Activates a branch
     /// </summary>
     /// <param name="id">Branch ID</param>
     /// <returns>True if activated successfully</returns>
-    Task<bool> ActivateAsync(int id);
+    Task<bool> ActivateAsync(Guid id);
 
     /// <summary>
     /// Deactivates a branch
     /// </summary>
     /// <param name="id">Branch ID</param>
     /// <returns>True if deactivated successfully</returns>
-    Task<bool> DeactivateAsync(int id);
+    Task<bool> DeactivateAsync(Guid id);
 
     /// <summary>
     /// Deletes a branch by its ID
     /// </summary>
     /// <param name="id">Branch ID</param>
     /// <returns>True if deleted successfully</returns>
-    Task<bool> RemoveAsync(int id);
+    Task<bool> RemoveAsync(Guid id);
 }

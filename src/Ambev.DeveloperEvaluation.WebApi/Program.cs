@@ -3,9 +3,11 @@ using Ambev.DeveloperEvaluation.Common.HealthChecks;
 using Ambev.DeveloperEvaluation.Common.Logging;
 using Ambev.DeveloperEvaluation.Common.Security;
 using Ambev.DeveloperEvaluation.Common.Validation;
+using Ambev.DeveloperEvaluation.Domain.Enums;
 using Ambev.DeveloperEvaluation.IoC;
 using Ambev.DeveloperEvaluation.WebApi.Middleware;
 using MediatR;
+using Microsoft.OpenApi.Models;
 using Serilog;
 
 namespace Ambev.DeveloperEvaluation.WebApi
@@ -29,10 +31,53 @@ namespace Ambev.DeveloperEvaluation.WebApi
                 builder.AddBasicHealthChecks();
 
                 // Add Swagger
-                builder.Services.AddSwaggerGen();
+                builder.Services.AddSwaggerGen(c =>
+                {
+                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Ambev.DeveloperEvaluation API", Version = "v1" });
+
+                    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                    {
+                        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                        Name = "Authorization",
+                        In = ParameterLocation.Header,
+                        Type = SecuritySchemeType.ApiKey,
+                        Scheme = "Bearer"
+                    });
+
+                    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] {}
+                        }
+                    });
+                });
 
                 // Add JWT authentication
                 builder.Services.AddJwtAuthentication(builder.Configuration);
+
+                // Configure authorization policies based on existing UserRoles
+                builder.Services.AddAuthorization(options =>
+                {
+                    // Policy for admin only
+                    options.AddPolicy("RequireAdminRole", policy =>
+                        policy.RequireRole(UserRole.Admin.ToString()));
+
+                    // Policy for managers and admins
+                    options.AddPolicy("RequireManagerRole", policy =>
+                        policy.RequireRole(UserRole.Manager.ToString(), UserRole.Admin.ToString()));
+
+                    // Policy for authenticated customers and above
+                    options.AddPolicy("RequireCustomerRole", policy =>
+                        policy.RequireRole(UserRole.Customer.ToString(), UserRole.Manager.ToString(), UserRole.Admin.ToString()));
+                });
 
                 builder.RegisterDependencies();
 

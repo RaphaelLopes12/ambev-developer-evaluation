@@ -8,7 +8,7 @@ public class UpdateBranchResult
     /// <summary>
     /// ID of the updated branch
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Updated name of the branch

@@ -8,7 +8,7 @@ public class CreateBranchResponse
     /// <summary>
     /// ID of the created branch
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Name of the created branch

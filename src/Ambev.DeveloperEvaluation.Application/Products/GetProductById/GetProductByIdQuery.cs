@@ -10,5 +10,5 @@ public class GetProductByIdQuery : IRequest<ProductDetailVm>
     /// <summary>
     /// ID of the product to get
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 }

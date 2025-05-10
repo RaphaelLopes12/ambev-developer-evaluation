@@ -10,7 +10,7 @@ public class UpdateProductCommand : IRequest<UpdateProductResult>
     /// <summary>
     /// ID of the product to update
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Updated title/name of the product

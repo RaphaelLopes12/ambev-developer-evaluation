@@ -8,7 +8,7 @@ public class ProductDto
     /// <summary>
     /// Product ID
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Product title/name

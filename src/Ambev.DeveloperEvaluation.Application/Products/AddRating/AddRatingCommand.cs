@@ -10,7 +10,7 @@ public class AddRatingCommand : IRequest<bool>
     /// <summary>
     /// ID of the product to rate
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Rating value (0-5)

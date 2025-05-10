@@ -13,6 +13,6 @@ public class DeleteProductValidator : AbstractValidator<DeleteProductCommand>
     public DeleteProductValidator()
     {
         RuleFor(p => p.Id)
-            .GreaterThan(0).WithMessage("Valid product ID is required.");
+            .NotEmpty().WithMessage("Valid product ID is required.");
     }
 }

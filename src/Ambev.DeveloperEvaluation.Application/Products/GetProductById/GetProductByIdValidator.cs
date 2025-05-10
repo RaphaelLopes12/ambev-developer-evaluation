@@ -12,7 +12,7 @@ public class GetProductByIdValidator : AbstractValidator<GetProductByIdQuery>
     /// </summary>
     public GetProductByIdValidator()
     {
-        RuleFor(q => q.Id)
-            .GreaterThan(0).WithMessage("Valid product ID is required.");
+        RuleFor(p=> p.Id)
+            .NotEmpty().WithMessage("Valid product ID is required.");
     }
 }

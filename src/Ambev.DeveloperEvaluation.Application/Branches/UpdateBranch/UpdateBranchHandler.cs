@@ -1,4 +1,6 @@
-﻿using Ambev.DeveloperEvaluation.Domain.Repositories;
+﻿using Ambev.DeveloperEvaluation.Application.Branches.Notifications;
+using Ambev.DeveloperEvaluation.Domain.Exceptions;
+using Ambev.DeveloperEvaluation.Domain.Repositories;
 using MediatR;
 
 namespace Ambev.DeveloperEvaluation.Application.Branches.UpdateBranch;
@@ -9,13 +11,15 @@ namespace Ambev.DeveloperEvaluation.Application.Branches.UpdateBranch;
 public class UpdateBranchHandler : IRequestHandler<UpdateBranchCommand, UpdateBranchResult>
 {
     private readonly IBranchRepository _branchRepository;
+    private readonly IMediator _mediator;
 
     /// <summary>
     /// Initializes a new instance of the UpdateBranchHandler
     /// </summary>
-    public UpdateBranchHandler(IBranchRepository branchRepository)
+    public UpdateBranchHandler(IBranchRepository branchRepository, IMediator mediator)
     {
         _branchRepository = branchRepository;
+        _mediator = mediator;
     }
 
     /// <summary>
@@ -42,10 +46,16 @@ public class UpdateBranchHandler : IRequestHandler<UpdateBranchCommand, UpdateBr
 
         if (!result)
         {
-            throw new ApplicationException($"Failed to update branch with ID {request.Id}.");
+            throw new AppException($"Failed to update branch with ID {request.Id}.");
         }
 
         var updatedBranch = await _branchRepository.GetByIdAsync(request.Id);
+
+        await _mediator.Publish(new BranchUpdatedNotification
+        {
+            Id = updatedBranch.Id,
+            Name = updatedBranch.Name
+        }, cancellationToken);
 
         return new UpdateBranchResult
         {

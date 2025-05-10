@@ -20,7 +20,7 @@ public class UpdateSaleCommand : IRequest<UpdateSaleResult>
     /// <summary>
     /// Customer identifier.
     /// </summary>
-    public Guid CustomerId { get; set; }
+    public string CustomerId { get; set; }
 
     /// <summary>
     /// Customer name.

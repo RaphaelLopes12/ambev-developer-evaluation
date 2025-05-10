@@ -10,7 +10,7 @@ public class UpdateBranchCommand : IRequest<UpdateBranchResult>
     /// <summary>
     /// ID of the branch to update
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Updated name of the branch

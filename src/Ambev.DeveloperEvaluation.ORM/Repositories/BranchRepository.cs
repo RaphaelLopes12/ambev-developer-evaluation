@@ -34,7 +34,7 @@ public class BranchRepository : IBranchRepository
     /// </summary>
     /// <param name="id">Branch ID</param>
     /// <returns>Branch found or null</returns>
-    public async Task<Branch> GetByIdAsync(int id)
+    public async Task<Branch> GetByIdAsync(Guid id)
     {
         return await _context.Branches.FindAsync(id);
     }
@@ -66,13 +66,12 @@ public class BranchRepository : IBranchRepository
     /// <param name="phone">Branch phone</param>
     /// <param name="email">Branch email</param>
     /// <returns>True if updated successfully</returns>
-    public async Task<bool> UpdateDetailsAsync(int id, string name, string address, string city, string state, string zipCode, string phone, string email)
+    public async Task<bool> UpdateDetailsAsync(Guid id, string name, string address, string city, string state, string zipCode, string phone, string email)
     {
         var branch = await _context.Branches.FindAsync(id);
         if (branch == null)
             return false;
 
-        // Use the entity's method instead of directly setting properties
         branch.UpdateDetails(name, address, city, state, zipCode, phone, email);
 
         var result = await _context.SaveChangesAsync();
@@ -84,7 +83,7 @@ public class BranchRepository : IBranchRepository
     /// </summary>
     /// <param name="id">Branch ID</param>
     /// <returns>True if activated successfully</returns>
-    public async Task<bool> ActivateAsync(int id)
+    public async Task<bool> ActivateAsync(Guid id)
     {
         var branch = await _context.Branches.FindAsync(id);
         if (branch == null)
@@ -102,7 +101,7 @@ public class BranchRepository : IBranchRepository
     /// </summary>
     /// <param name="id">Branch ID</param>
     /// <returns>True if deactivated successfully</returns>
-    public async Task<bool> DeactivateAsync(int id)
+    public async Task<bool> DeactivateAsync(Guid id)
     {
         var branch = await _context.Branches.FindAsync(id);
         if (branch == null)
@@ -120,7 +119,7 @@ public class BranchRepository : IBranchRepository
     /// </summary>
     /// <param name="id">Branch ID</param>
     /// <returns>True if deleted successfully</returns>
-    public async Task<bool> RemoveAsync(int id)
+    public async Task<bool> RemoveAsync(Guid id)
     {
         var branch = await _context.Branches.FindAsync(id);
         if (branch == null)

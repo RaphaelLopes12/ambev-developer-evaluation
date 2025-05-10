@@ -11,5 +11,5 @@ public class ActivateBranchRequest
     /// ID of the branch to activate
     /// </summary>
     [Required]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 }

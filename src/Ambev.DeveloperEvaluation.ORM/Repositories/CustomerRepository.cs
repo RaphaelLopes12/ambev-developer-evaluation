@@ -47,7 +47,6 @@ public class CustomerRepository : ICustomerRepository
     /// <returns>Cliente criado</returns>
     public async Task<Customer> AddAsync(Customer customer)
     {
-        customer.CreatedAt = DateTime.UtcNow;
         await _context.Customers.InsertOneAsync(customer);
         return customer;
     }
@@ -59,7 +58,6 @@ public class CustomerRepository : ICustomerRepository
     /// <returns>True se atualizado com sucesso</returns>
     public async Task<bool> UpdateAsync(Customer customer)
     {
-        customer.UpdatedAt = DateTime.UtcNow;
         var result = await _context.Customers.ReplaceOneAsync(c => c.Id == customer.Id, customer);
         return result.IsAcknowledged && result.ModifiedCount > 0;
     }

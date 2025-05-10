@@ -8,7 +8,7 @@ public class CreateProductResponse
     /// <summary>
     /// ID of the created product
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Title of the created product

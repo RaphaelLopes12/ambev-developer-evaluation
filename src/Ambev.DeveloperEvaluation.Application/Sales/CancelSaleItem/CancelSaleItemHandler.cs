@@ -12,6 +12,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CancelSaleItem;
 public class CancelSaleItemHandler : IRequestHandler<CancelSaleItemCommand, CancelSaleItemResult>
 {
     private readonly ISaleRepository _saleRepository;
+    private readonly IProductRepository _productRepository;
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
     private readonly ILogger<CancelSaleItemHandler> _logger;
@@ -25,11 +26,13 @@ public class CancelSaleItemHandler : IRequestHandler<CancelSaleItemCommand, Canc
     /// <param name="logger">Logger instance</param>
     public CancelSaleItemHandler(
         ISaleRepository saleRepository,
+        IProductRepository productRepository,
         IMediator mediator,
         IMapper mapper,
         ILogger<CancelSaleItemHandler> logger)
     {
         _saleRepository = saleRepository;
+        _productRepository = productRepository;
         _mediator = mediator;
         _mapper = mapper;
         _logger = logger;
@@ -57,6 +60,19 @@ public class CancelSaleItemHandler : IRequestHandler<CancelSaleItemCommand, Canc
                 SaleId = request.SaleId,
                 ProductId = request.ProductId,
                 Message = "Sale not found"
+            };
+        }
+
+        var product = await _productRepository.GetByIdAsync(request.ProductId);
+        if (product == null)
+        {
+            _logger.LogWarning("Product with ID: {ProductId} not found", request.ProductId);
+            return new CancelSaleItemResult
+            {
+                Success = false,
+                SaleId = request.SaleId,
+                ProductId = request.ProductId,
+                Message = "Product not found"
             };
         }
 

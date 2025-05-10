@@ -44,13 +44,6 @@ public class SaleItemConfiguration : IEntityTypeConfiguration<SaleItem>
             .IsRequired()
             .HasDefaultValue(false);
 
-        builder.Property(i => i.ProductId).HasField("_productId");
-        builder.Property(i => i.ProductName).HasField("_productName");
-        builder.Property(i => i.Quantity).HasField("_quantity");
-        builder.Property(i => i.UnitPrice).HasField("_unitPrice");
-        builder.Property(i => i.Discount).HasField("_discount");
-        builder.Property(i => i.IsCancelled).HasField("_isCancelled");
-
         builder.Ignore(i => i.Total);
 
         builder.Property<Guid>("SaleId");

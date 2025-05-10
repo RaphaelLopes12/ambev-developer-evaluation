@@ -18,7 +18,7 @@ public class UpdateSaleRequest
     /// <summary>
     /// Customer identifier.
     /// </summary>
-    public Guid CustomerId { get; set; }
+    public string CustomerId { get; set; }
 
     /// <summary>
     /// Customer name (denormalized).

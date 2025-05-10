@@ -16,242 +16,261 @@ using Ambev.DeveloperEvaluation.WebApi.Features.Branches.GetBranches;
 using Ambev.DeveloperEvaluation.WebApi.Features.Branches.UpdateBranch;
 using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Ambev.DeveloperEvaluation.WebApi.Features.Branches
+namespace Ambev.DeveloperEvaluation.WebApi.Features.Branches;
+
+/// <summary>
+/// Controller for managing branch operations
+/// </summary>
+[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class BranchesController : BaseController
 {
+    private readonly IMediator _mediator;
+    private readonly IMapper _mapper;
+
     /// <summary>
-    /// Controller for managing branch operations
+    /// Initializes a new instance of BranchesController
     /// </summary>
-    [ApiController]
-    [Route("api/[controller]")]
-    public class BranchesController : BaseController
+    public BranchesController(IMediator mediator, IMapper mapper)
     {
-        private readonly IMediator _mediator;
-        private readonly IMapper _mapper;
+        _mediator = mediator;
+        _mapper = mapper;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of BranchesController
-        /// </summary>
-        public BranchesController(IMediator mediator, IMapper mapper)
+    /// <summary>
+    /// Creates a new branch
+    /// </summary>
+    [HttpPost]
+    [Authorize(Policy = "RequireManagerRole")]
+    [ProducesResponseType(typeof(ApiResponseWithData<CreateBranchResponse>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> CreateBranch([FromBody] CreateBranchRequest request, CancellationToken cancellationToken)
+    {
+        var validationResult = await new CreateBranchRequestValidator().ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+
+        var command = _mapper.Map<CreateBranchCommand>(request);
+        var result = await _mediator.Send(command, cancellationToken);
+
+        return Created(string.Empty, new ApiResponseWithData<CreateBranchResponse>
         {
-            _mediator = mediator;
-            _mapper = mapper;
-        }
+            Success = true,
+            Message = "Branch created successfully",
+            Data = _mapper.Map<CreateBranchResponse>(result)
+        });
+    }
 
-        /// <summary>
-        /// Creates a new branch
-        /// </summary>
-        [HttpPost]
-        [ProducesResponseType(typeof(ApiResponseWithData<CreateBranchResponse>), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateBranch([FromBody] CreateBranchRequest request, CancellationToken cancellationToken)
+    /// <summary>
+    /// Gets a branch by ID
+    /// </summary>
+    [HttpGet("{id}")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponseWithData<GetBranchResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetBranch([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetBranchByIdQuery { Id = id }, cancellationToken);
+
+        if (result == null)
+            return NotFound(new ApiResponse
+            {
+                Success = false,
+                Message = "Branch not found"
+            });
+
+        return Ok(new ApiResponseWithData<GetBranchResponse>
         {
-            var validationResult = await new CreateBranchRequestValidator().ValidateAsync(request, cancellationToken);
-            if (!validationResult.IsValid)
-                return BadRequest(validationResult.Errors);
+            Success = true,
+            Message = "Branch retrieved successfully",
+            Data = _mapper.Map<GetBranchResponse>(result)
+        });
+    }
 
-            var command = _mapper.Map<CreateBranchCommand>(request);
+    /// <summary>
+    /// Gets all branches
+    /// </summary>
+    [HttpGet]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponseWithData<GetBranchesResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetBranches(CancellationToken cancellationToken = default)
+    {
+        var result = await _mediator.Send(new GetBranchesQuery(), cancellationToken);
+
+        return Ok(new ApiResponseWithData<GetBranchesResponse>
+        {
+            Success = true,
+            Message = "Branches retrieved successfully",
+            Data = new GetBranchesResponse
+            {
+                Branches = _mapper.Map<List<BranchListItem>>(result)
+            }
+        });
+    }
+
+    /// <summary>
+    /// Gets all active branches
+    /// </summary>
+    [HttpGet("active")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponseWithData<GetActiveBranchesResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetActiveBranches(CancellationToken cancellationToken = default)
+    {
+        var result = await _mediator.Send(new GetActiveBranchesQuery(), cancellationToken);
+
+        return Ok(new ApiResponseWithData<GetActiveBranchesResponse>
+        {
+            Success = true,
+            Message = "Active branches retrieved successfully",
+            Data = new GetActiveBranchesResponse
+            {
+                Branches = _mapper.Map<List<ActiveBranchItem>>(result)
+            }
+        });
+    }
+
+    /// <summary>
+    /// Updates a branch
+    /// </summary>
+    [HttpPut("{id}")]
+    [Authorize(Policy = "RequireManagerRole")]
+    [ProducesResponseType(typeof(ApiResponseWithData<UpdateBranchResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> UpdateBranch([FromRoute] Guid id, [FromBody] UpdateBranchRequest request, CancellationToken cancellationToken)
+    {
+        var validationResult = await new UpdateBranchRequestValidator().ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+
+        var command = _mapper.Map<UpdateBranchCommand>(request);
+        command.Id = id;
+
+        try
+        {
             var result = await _mediator.Send(command, cancellationToken);
 
-            return Created(string.Empty, new ApiResponseWithData<CreateBranchResponse>
+            return Ok(new ApiResponseWithData<UpdateBranchResponse>
             {
                 Success = true,
-                Message = "Branch created successfully",
-                Data = _mapper.Map<CreateBranchResponse>(result)
+                Message = "Branch updated successfully",
+                Data = _mapper.Map<UpdateBranchResponse>(result)
             });
         }
-
-        /// <summary>
-        /// Gets a branch by ID
-        /// </summary>
-        [HttpGet("{id}")]
-        [ProducesResponseType(typeof(ApiResponseWithData<GetBranchResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetBranch([FromRoute] int id, CancellationToken cancellationToken)
+        catch (Domain.Exceptions.NotFoundException)
         {
-            var result = await _mediator.Send(new GetBranchByIdQuery { Id = id }, cancellationToken);
-
-            if (result == null)
-                return NotFound(new ApiResponse
-                {
-                    Success = false,
-                    Message = "Branch not found"
-                });
-
-            return Ok(new ApiResponseWithData<GetBranchResponse>
+            return NotFound(new ApiResponse
             {
-                Success = true,
-                Message = "Branch retrieved successfully",
-                Data = _mapper.Map<GetBranchResponse>(result)
+                Success = false,
+                Message = $"Branch with ID {id} not found"
             });
         }
+    }
 
-        /// <summary>
-        /// Gets all branches
-        /// </summary>
-        [HttpGet]
-        [ProducesResponseType(typeof(ApiResponseWithData<GetBranchesResponse>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetBranches(CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Activates a branch
+    /// </summary>
+    [HttpPatch("{id}/activate")]
+    [Authorize(Policy = "RequireManagerRole")]
+    [ProducesResponseType(typeof(ApiResponseWithData<ActivateBranchResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> ActivateBranch([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        try
         {
-            var result = await _mediator.Send(new GetBranchesQuery(), cancellationToken);
+            var success = await _mediator.Send(new ActivateBranchCommand { Id = id }, cancellationToken);
 
-            return Ok(new ApiResponseWithData<GetBranchesResponse>
+            return Ok(new ApiResponseWithData<ActivateBranchResponse>
             {
                 Success = true,
-                Message = "Branches retrieved successfully",
-                Data = new GetBranchesResponse
+                Message = "Branch activated successfully",
+                Data = new ActivateBranchResponse
                 {
-                    Branches = _mapper.Map<List<BranchListItem>>(result)
+                    Success = true,
+                    Message = "Branch activated successfully"
                 }
             });
         }
-
-        /// <summary>
-        /// Gets all active branches
-        /// </summary>
-        [HttpGet("active")]
-        [ProducesResponseType(typeof(ApiResponseWithData<GetActiveBranchesResponse>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetActiveBranches(CancellationToken cancellationToken = default)
+        catch (Domain.Exceptions.NotFoundException)
         {
-            var result = await _mediator.Send(new GetActiveBranchesQuery(), cancellationToken);
+            return NotFound(new ApiResponse
+            {
+                Success = false,
+                Message = $"Branch with ID {id} not found"
+            });
+        }
+    }
 
-            return Ok(new ApiResponseWithData<GetActiveBranchesResponse>
+    /// <summary>
+    /// Deactivates a branch
+    /// </summary>
+    [HttpPatch("{id}/deactivate")]
+    [Authorize(Policy = "RequireManagerRole")]
+    [ProducesResponseType(typeof(ApiResponseWithData<DeactivateBranchResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DeactivateBranch([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var success = await _mediator.Send(new DeactivateBranchCommand { Id = id }, cancellationToken);
+
+            return Ok(new ApiResponseWithData<DeactivateBranchResponse>
             {
                 Success = true,
-                Message = "Active branches retrieved successfully",
-                Data = new GetActiveBranchesResponse
+                Message = "Branch deactivated successfully",
+                Data = new DeactivateBranchResponse
                 {
-                    Branches = _mapper.Map<List<ActiveBranchItem>>(result)
+                    Success = true,
+                    Message = "Branch deactivated successfully"
                 }
             });
         }
-
-        /// <summary>
-        /// Updates a branch
-        /// </summary>
-        [HttpPut("{id}")]
-        [ProducesResponseType(typeof(ApiResponseWithData<UpdateBranchResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateBranch([FromRoute] int id, [FromBody] UpdateBranchRequest request, CancellationToken cancellationToken)
+        catch (Domain.Exceptions.NotFoundException)
         {
-            var validationResult = await new UpdateBranchRequestValidator().ValidateAsync(request, cancellationToken);
-            if (!validationResult.IsValid)
-                return BadRequest(validationResult.Errors);
-
-            var command = _mapper.Map<UpdateBranchCommand>(request);
-            command.Id = id;
-
-            try
+            return NotFound(new ApiResponse
             {
-                var result = await _mediator.Send(command, cancellationToken);
-
-                return Ok(new ApiResponseWithData<UpdateBranchResponse>
-                {
-                    Success = true,
-                    Message = "Branch updated successfully",
-                    Data = _mapper.Map<UpdateBranchResponse>(result)
-                });
-            }
-            catch (Domain.Exceptions.NotFoundException)
-            {
-                return NotFound(new ApiResponse
-                {
-                    Success = false,
-                    Message = $"Branch with ID {id} not found"
-                });
-            }
-        }
-
-        /// <summary>
-        /// Activates a branch
-        /// </summary>
-        [HttpPatch("{id}/activate")]
-        [ProducesResponseType(typeof(ApiResponseWithData<ActivateBranchResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ActivateBranch([FromRoute] int id, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var success = await _mediator.Send(new ActivateBranchCommand { Id = id }, cancellationToken);
-
-                return Ok(new ApiResponseWithData<ActivateBranchResponse>
-                {
-                    Success = true,
-                    Message = "Branch activated successfully",
-                    Data = new ActivateBranchResponse
-                    {
-                        Success = true,
-                        Message = "Branch activated successfully"
-                    }
-                });
-            }
-            catch (Domain.Exceptions.NotFoundException)
-            {
-                return NotFound(new ApiResponse
-                {
-                    Success = false,
-                    Message = $"Branch with ID {id} not found"
-                });
-            }
-        }
-
-        /// <summary>
-        /// Deactivates a branch
-        /// </summary>
-        [HttpPatch("{id}/deactivate")]
-        [ProducesResponseType(typeof(ApiResponseWithData<DeactivateBranchResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeactivateBranch([FromRoute] int id, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var success = await _mediator.Send(new DeactivateBranchCommand { Id = id }, cancellationToken);
-
-                return Ok(new ApiResponseWithData<DeactivateBranchResponse>
-                {
-                    Success = true,
-                    Message = "Branch deactivated successfully",
-                    Data = new DeactivateBranchResponse
-                    {
-                        Success = true,
-                        Message = "Branch deactivated successfully"
-                    }
-                });
-            }
-            catch (Domain.Exceptions.NotFoundException)
-            {
-                return NotFound(new ApiResponse
-                {
-                    Success = false,
-                    Message = $"Branch with ID {id} not found"
-                });
-            }
-        }
-
-        /// <summary>
-        /// Deletes a branch
-        /// </summary>
-        [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteBranch([FromRoute] int id, CancellationToken cancellationToken)
-        {
-            var success = await _mediator.Send(new DeleteBranchCommand { Id = id }, cancellationToken);
-
-            if (!success)
-                return NotFound(new ApiResponse
-                {
-                    Success = false,
-                    Message = "Branch not found"
-                });
-
-            return Ok(new ApiResponse
-            {
-                Success = true,
-                Message = "Branch deleted successfully"
+                Success = false,
+                Message = $"Branch with ID {id} not found"
             });
         }
+    }
+
+    /// <summary>
+    /// Deletes a branch
+    /// </summary>
+    [HttpDelete("{id}")]
+    [Authorize(Policy = "RequireManagerRole")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DeleteBranch([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var success = await _mediator.Send(new DeleteBranchCommand { Id = id }, cancellationToken);
+
+        if (!success)
+            return NotFound(new ApiResponse
+            {
+                Success = false,
+                Message = "Branch not found"
+            });
+
+        return Ok(new ApiResponse
+        {
+            Success = true,
+            Message = "Branch deleted successfully"
+        });
     }
 }

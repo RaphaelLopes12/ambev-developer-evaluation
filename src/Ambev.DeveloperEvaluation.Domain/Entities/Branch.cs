@@ -11,7 +11,7 @@ public class Branch
     /// <summary>
     /// Unique identifier of the branch.
     /// </summary>
-    public int Id { get; private set; }
+    public Guid Id { get; private set; }
 
     /// <summary>
     /// Name of the branch.
@@ -78,6 +78,7 @@ public class Branch
     /// </summary>
     public Branch(string name, string address, string city, string state, string zipCode, string phone, string email)
     {
+        Id = Guid.NewGuid();
         Name = name;
         Address = address;
         City = city;

@@ -21,7 +21,7 @@ public interface IProductRepository
     /// </summary>
     /// <param name="id">Product ID</param>
     /// <returns>Product found or null</returns>
-    Task<Product> GetByIdAsync(int id);
+    Task<Product> GetByIdAsync(Guid id);
 
     /// <summary>
     /// Gets all product categories
@@ -56,7 +56,7 @@ public interface IProductRepository
     /// <param name="category">Product category</param>
     /// <param name="image">Product image URL</param>
     /// <returns>True if updated successfully</returns>
-    Task<bool> UpdateDetailsAsync(int id, string title, decimal price, string description, string category, string image);
+    Task<bool> UpdateDetailsAsync(Guid id, string title, decimal price, string description, string category, string image);
 
     /// <summary>
     /// Updates the stock quantity of a product
@@ -64,7 +64,7 @@ public interface IProductRepository
     /// <param name="id">Product ID</param>
     /// <param name="quantity">New stock quantity</param>
     /// <returns>True if updated successfully</returns>
-    Task<bool> UpdateStockAsync(int id, int quantity);
+    Task<bool> UpdateStockAsync(Guid id, int quantity);
 
     /// <summary>
     /// Adds a rating to a product
@@ -72,12 +72,12 @@ public interface IProductRepository
     /// <param name="id">Product ID</param>
     /// <param name="rating">Rating value (0-5)</param>
     /// <returns>True if updated successfully</returns>
-    Task<bool> AddRatingAsync(int id, decimal rating);
+    Task<bool> AddRatingAsync(Guid id, decimal rating);
 
     /// <summary>
     /// Deletes a product by its ID
     /// </summary>
     /// <param name="id">Product ID</param>
     /// <returns>True if deleted successfully</returns>
-    Task<bool> RemoveAsync(int id);
+    Task<bool> RemoveAsync(Guid id);
 }

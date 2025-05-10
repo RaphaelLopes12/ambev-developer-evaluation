@@ -12,7 +12,7 @@ public class GetBranchByIdValidator : AbstractValidator<GetBranchByIdQuery>
     /// </summary>
     public GetBranchByIdValidator()
     {
-        RuleFor(q => q.Id)
-            .GreaterThan(0).WithMessage("Valid branch ID is required.");
+        RuleFor(b => b.Id)
+            .NotEmpty().WithMessage("Valid branch ID is required.");
     }
 }

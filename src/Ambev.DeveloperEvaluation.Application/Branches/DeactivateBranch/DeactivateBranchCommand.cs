@@ -10,5 +10,5 @@ public class DeactivateBranchCommand : IRequest<bool>
     /// <summary>
     /// ID of the branch to deactivate
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 }

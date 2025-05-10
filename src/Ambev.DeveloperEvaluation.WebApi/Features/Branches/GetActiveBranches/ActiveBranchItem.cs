@@ -8,7 +8,7 @@ public class ActiveBranchItem
     /// <summary>
     /// ID of the branch
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Name of the branch
